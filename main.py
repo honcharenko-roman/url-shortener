@@ -2,6 +2,9 @@ from flask import Flask
 from flask import request
 from flask_restful import Resource, Api
 
+import db_utils
+import shortener
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -19,6 +22,8 @@ class UrlShortener(Resource):
             cursor.execute(insert_url_sql, (original_url, 90 if expiration_date is None else expiration_date))
             return shortener.shorten(cursor.lastrowid + 1)
 
+        # cursor.close()
+        # con.close()
 
 
 api.add_resource(UrlShortener, '/shorten')
