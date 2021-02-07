@@ -1,11 +1,13 @@
 from flask import Flask
+from flask import request
 from flask_restful import Resource, Api
 
 app = Flask(__name__)
 api = Api(app)
 
 
-class HelloWorld(Resource):
+class UrlShortener(Resource):
+
     def get(self):
         expiration_date = request.args.get('expiration_date')
         original_url = request.args.get('url')
@@ -18,7 +20,8 @@ class HelloWorld(Resource):
             return shortener.shorten(cursor.lastrowid + 1)
 
 
-api.add_resource(HelloWorld, '/')
+
+api.add_resource(UrlShortener, '/shorten')
 
 if __name__ == '__main__':
     db_utils.create_url_table()
