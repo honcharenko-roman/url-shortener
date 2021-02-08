@@ -1,6 +1,6 @@
 from datetime import timedelta, date
 
-from flask import Flask, request
+from flask import Flask, request, redirect
 from flask_restful import Resource, Api
 
 import db_utils
@@ -39,7 +39,7 @@ class UrlShortenerAPI(Resource):
         with con:
             restored_url = cursor.execute('SELECT ORIGINAL FROM Url WHERE ID=?',
                                           (short_url,)).fetchone()
-            return restored_url[0] if restored_url else 'NoSuchOriginalLinkError'
+            return redirect(restored_url[0]) if restored_url else 'NoSuchOriginalLinkError'
 
 
 api.add_resource(UrlShortenerAPI, '/shorten')
