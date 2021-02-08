@@ -1,4 +1,6 @@
-from flask import Flask, request, redirect
+from datetime import timedelta, date
+
+from flask import Flask, request
 from flask_restful import Resource, Api
 
 import db_utils
@@ -11,41 +13,41 @@ api = Api(app)
 class UrlShortenerAPI(Resource):
 
     def get(self):
-        expiration_date = request.args.get('expiration_date')
+        days_to_expire = request.args.get('days_to_expire')
+        days_to_expire = 90 if days_to_expire is None else days_to_expire
+
         original_url = request.args.get('url')
+
         con = db_utils.db_connect()
         cursor = con.cursor()
 
-        shorted_original_urls = [original_url[0] for original_url in cursor.execute("SELECT ORIGINAL FROM Url")]
-
         with con:
-            if original_url in shorted_original_urls:
-                select_url_sql = 'SELECT ID FROM Url WHERE ORIGINAL=?'
-                return cursor.execute(select_url_sql, (original_url,)).fetchone()[0]
-            else:
-                cursor.execute("SELECT ID FROM URL ORDER BY ID DESC LIMIT 1")
-                saved_id = cursor.fetchone()
-                saved_id = (shortener.unshort(saved_id[0]) + 1) if saved_id is not None else 1
+            last_inserted_id = cursor.execute("SELECT ID FROM URL ORDER BY ID DESC LIMIT 1").fetchone()
+            encoded_id = 1 if last_inserted_id is None else shortener.unshort(last_inserted_id[0]) + 1
 
-                insert_url_sql = "INSERT INTO Url (ID, ORIGINAL, EXPIRATION_DATE) VALUES (?, ?, ?)"
-                cursor.execute(insert_url_sql,
-                               (shortener.shorten(saved_id),
-                                original_url,
-                                90 if expiration_date is None else expiration_date))
+            cursor.execute("INSERT INTO Url (ID, ORIGINAL, EXPIRATION_DATE) VALUES (?, ?, ?)",
+                           (shortener.shorten(encoded_id),
+                            original_url,
+                            date.today() + timedelta(days=int(days_to_expire))))
 
-                return shortener.shorten(saved_id)
+            return shortener.shorten(encoded_id)
 
     @app.route('/<short_url>', methods=['GET'])
     def restore_url(short_url):
         con = db_utils.db_connect()
         cursor = con.cursor()
         with con:
-            select_url_sql = 'SELECT ORIGINAL FROM Url WHERE ID=?'
-            return redirect(cursor.execute(select_url_sql, (short_url,)).fetchone()[0])
+            restored_url = cursor.execute('SELECT ORIGINAL FROM Url WHERE ID=?',
+                                          (short_url,)).fetchone()
+            return restored_url[0] if restored_url else 'NoSuchOriginalLinkError'
 
 
 api.add_resource(UrlShortenerAPI, '/shorten')
 
 if __name__ == '__main__':
     db_utils.create_url_table()
+
+    # schedule.every().day.do(cleaner_expired.delete_expired)
+    # stop_run_continuously = cleaner_expired.run_continuously()
+
     app.run(debug=True)
