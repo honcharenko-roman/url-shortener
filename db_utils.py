@@ -1,4 +1,3 @@
-# db_utils.py
 import os
 import sqlite3
 
@@ -8,7 +7,7 @@ DEFAULT_PATH = os.path.join(os.path.dirname(__file__), 'urls.db')
 def create_url_table():
     creation_sql = """
             CREATE TABLE IF NOT EXISTS Url (
-                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                 ID TEXT PRIMARY KEY,
                  ORIGINAL TEXT NOT NULL,
                  EXPIRATION_DATE int NOT NULL)"""
     con = db_connect()

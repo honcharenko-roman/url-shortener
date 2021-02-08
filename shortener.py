@@ -22,5 +22,5 @@ def shorten(number, alphabet='0123456789' + string.ascii_lowercase):
     return sign + base36
 
 
-def base36decode(number):
+def unshort(number):
     return int(number, 36)
