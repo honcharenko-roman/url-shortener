@@ -22,8 +22,11 @@ class UrlShortenerAPI(Resource):
         cursor = con.cursor()
 
         with con:
-            last_inserted_id = cursor.execute("SELECT ID FROM URL ORDER BY ID DESC LIMIT 1").fetchone()
-            encoded_id = 1 if last_inserted_id is None else shortener.unshort(last_inserted_id[0]) + 1
+            used_ids = cursor.execute('SELECT ID FROM Url').fetchall()
+            if used_ids:
+                used_ids = [shortener.unshort(i[0]) for i in used_ids]
+
+            encoded_id = 1 if used_ids is None else max(used_ids) + 1
 
             cursor.execute("INSERT INTO Url (ID, ORIGINAL, EXPIRATION_DATE) VALUES (?, ?, ?)",
                            (shortener.shorten(encoded_id),
