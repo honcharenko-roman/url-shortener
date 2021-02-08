@@ -14,7 +14,8 @@ class UrlShortenerAPI(Resource):
 
     def get(self):
         days_to_expire = request.args.get('days_to_expire')
-        days_to_expire = 90 if days_to_expire is None else days_to_expire
+        days_to_expire = 90 if days_to_expire is None else int(days_to_expire)
+        days_to_expire = 365 if days_to_expire > 365 else days_to_expire
 
         original_url = request.args.get('url')
 
@@ -31,7 +32,7 @@ class UrlShortenerAPI(Resource):
             cursor.execute("INSERT INTO Url (ID, ORIGINAL, EXPIRATION_DATE) VALUES (?, ?, ?)",
                            (shortener.shorten(encoded_id),
                             original_url,
-                            date.today() + timedelta(days=int(days_to_expire))))
+                            date.today() + timedelta(days=days_to_expire)))
 
             return shortener.shorten(encoded_id)
 
