@@ -1,8 +1,10 @@
 from datetime import timedelta, date
 
+import schedule
 from flask import Flask, request, redirect
 from flask_restful import Resource, Api
 
+import cleaner_expired
 import db_utils
 import shortener
 
@@ -51,7 +53,7 @@ api.add_resource(UrlShortenerAPI, '/shorten')
 if __name__ == '__main__':
     db_utils.create_url_table()
 
-    # schedule.every().day.do(cleaner_expired.delete_expired)
-    # stop_run_continuously = cleaner_expired.run_continuously()
+    schedule.every().day.do(cleaner_expired.delete_expired)
+    stop_run_continuously = cleaner_expired.run_continuously()
 
     app.run(debug=True)
