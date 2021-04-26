@@ -1,5 +1,5 @@
-# jooble-test-task
-Link shortening service written with Flask
+# url-stortener
+Link shortening service written with Flask and SQLAlchemy
 
 ## Algorithm:
 In order to keep links as short as possible, the original links are numbered using 32-base values, which are formed from '0123456789' + english lowercase alphabet.

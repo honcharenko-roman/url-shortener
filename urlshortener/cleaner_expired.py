@@ -2,9 +2,10 @@ import threading
 import time
 from datetime import date
 
+import schedule
+
 from database import db_session
 from models import Url
-import schedule
 
 
 def run_continuously(interval=1):

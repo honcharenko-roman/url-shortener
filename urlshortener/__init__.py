@@ -6,9 +6,11 @@ from database import init_db
 
 app = Flask(__name__)
 init_db()
-import routes
 
 if __name__ == '__main__':
-    # schedule.every().second.do(cleaner_expired.delete_expired)
-    # stop_run_continuously = cleaner_expired.run_continuously()
+    schedule.every().second.do(cleaner_expired.delete_expired)
+    stop_run_continuously = cleaner_expired.run_continuously()
+
     app.run()
+
+import routes
